@@ -1,6 +1,8 @@
-dev
+dev (longlife)
 ---
-
+* Remove commits with "Merge" into their commit message, to remove simple merge operations.
+* Add max-items argument to limit the number of commit to display (regardless of number of revisions)
+* Changed filename_filter to filename-filter to follow convention of other directives
 * Add filename_filter argument to git_changelog (Emmanuelle Delescolle) 
 
 v10.0.0

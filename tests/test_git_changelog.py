@@ -205,7 +205,7 @@ class TestWithRepository(ChangelogTestCase):
             self.repo.index.commit('commit with file {}'.format(file_name))
         self.repo.index.commit('commit without file')
 
-        self.changelog.options = {'filename_filter': 'a.*txt'}
+        self.changelog.options = {'filename-filter': 'a.*txt'}
         nodes = self.changelog.run()
         assert_equal(1, len(nodes))
         list_markup = BeautifulSoup(str(nodes[0]), features='xml')

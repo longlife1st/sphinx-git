@@ -114,9 +114,10 @@ class GitChangelog(GitDirectiveBase):
 
     option_spec = {
         'revisions': directives.nonnegative_int,
+        'max-items': directives.nonnegative_int,
         'rev-list': six.text_type,
         'detailed-message-pre': bool,
-        'filename_filter': six.text_type,
+        'filename-filter': six.text_type,
     }
 
     def run(self):
@@ -140,15 +141,16 @@ class GitChangelog(GitDirectiveBase):
             commits = repo.iter_commits(rev=self.options['rev-list'])
         else:
             commits = repo.iter_commits()
-            revisions_to_display = self.options.get('revisions', 10)
+            revisions_to_display = self.options.get('revisions', 10000)
             commits = list(commits)[:revisions_to_display]
-        if 'filename_filter' in self.options:
-            return self._filter_commits_on_filenames(commits)
-        return commits
+        if 'filename-filter' in self.options:
+            commits = self._filter_commits_on_filenames(commits)
+        max_revisions_to_display = self.options.get('max-items', 20)
+        return commits[:max_revisions_to_display]
 
     def _filter_commits_on_filenames(self, commits):
         filtered_commits = []
-        filter_exp = re.compile(self.options.get('filename_filter', r'.*'))
+        filter_exp = re.compile(self.options.get('filename-filter', r'.*'))
         for commit in commits:
             # SHA of an empty tree found at
             # http://stackoverflow.com/questions/33916648/get-the-diff-details-of-first-commit-in-gitpython
@@ -157,8 +159,9 @@ class GitChangelog(GitDirectiveBase):
             if len(commit.parents) > 0:
                 compared_with = commit.parents[0].hexsha
             for diff in commit.diff(compared_with):
-                if filter_exp.match(diff.a_path) or \
-                        filter_exp.match(diff.b_path):
+                if (filter_exp.match(diff.a_path) or \
+                        filter_exp.match(diff.b_path)) and \
+                            not ('Merge' in str(commit.message)):
                     filtered_commits.append(commit)
                     break
         return filtered_commits
