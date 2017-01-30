@@ -161,7 +161,7 @@ class GitChangelog(GitDirectiveBase):
             for diff in commit.diff(compared_with):
                 if (filter_exp.match(diff.a_path) or \
                         filter_exp.match(diff.b_path)) and \
-                            not ('Merge' in str(commit.message)):
+                            not ('Merge' in six.text_type(commit.message)):
                     filtered_commits.append(commit)
                     break
         return filtered_commits
